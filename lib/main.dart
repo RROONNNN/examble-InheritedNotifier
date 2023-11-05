@@ -23,7 +23,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  double value = 0;
+  valueNotifier value = valueNotifier(value: 0);
   @override
   Widget build(BuildContext context) {
     print("nguvc\n");
@@ -32,19 +32,16 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text('InheritNotifier'),
       ),
       body: InheritedExameble(
-        val: valueNotifier(value: 0),
+        val:value ,
         child: Builder(builder: (context) {
           return Column(children: [
             Slider(
               min: 0,
               max: 10,
-              value: value,
+              value: value.value,
               onChanged: (i) {
                 print("$i\n");
-                 context
-                    .dependOnInheritedWidgetOfExactType<InheritedExameble>()!
-                    .val
-                    .value=i;
+                value.value = i;
               },
             ),
             Row(children: [
@@ -80,16 +77,10 @@ class valueNotifier extends ChangeNotifier {
     notifyListeners();
   }
 }
-
-class InheritedExameble extends InheritedWidget {
+class InheritedExameble extends InheritedNotifier<valueNotifier> {
   final valueNotifier val;
   final Widget child;
 
-  InheritedExameble({super.key, required this.child, required this.val})
-      : super(child: child);
-
-  @override
-  bool updateShouldNotify(covariant InheritedExameble oldWidget) {
-    return val != oldWidget.val;
-  }
+  const InheritedExameble({super.key, required this.child, required this.val})
+      : super(child: child, notifier: val);
 }

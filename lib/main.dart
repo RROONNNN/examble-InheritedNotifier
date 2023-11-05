@@ -31,33 +31,65 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text('InheritNotifier'),
       ),
-      body: Column(children: [
-        Slider(
-          min: 0,
-          max: 10,
-          value: value,
-          onChanged: (i) {
-            print("$i\n");
-            setState(() {
-              value = i;
-            });
-          },
-        ),
-        Row(children: [
-          Expanded(
-            child: Container(
-              height: 200,
-              color: Colors.blue,
+      body: InheritedExameble(
+        val: valueNotifier(value: 0),
+        child: Builder(builder: (context) {
+          return Column(children: [
+            Slider(
+              min: 0,
+              max: 10,
+              value: value,
+              onChanged: (i) {
+                print("$i\n");
+                 context
+                    .dependOnInheritedWidgetOfExactType<InheritedExameble>()!
+                    .val
+                    .value=i;
+              },
             ),
-          ),
-          Expanded(
-            child: Container(
-              height: 200,
-              color: Colors.red,
-            ),
-          ),
-        ]),
-      ]),
+            Row(children: [
+              Expanded(
+                child: Container(
+                  height: 200,
+                  color: Colors.blue,
+                ),
+              ),
+              Expanded(
+                child: Container(
+                  height: 200,
+                  color: Colors.red,
+                ),
+              ),
+            ]),
+          ]);
+        }),
+      ),
     );
+  }
+}
+
+class valueNotifier extends ChangeNotifier {
+  double _value = 0;
+
+  valueNotifier({required double value}) : _value = value;
+
+  double get value => _value;
+  void set value(double val) {
+    print("val\n");
+    _value = val;
+    notifyListeners();
+  }
+}
+
+class InheritedExameble extends InheritedWidget {
+  final valueNotifier val;
+  final Widget child;
+
+  InheritedExameble({super.key, required this.child, required this.val})
+      : super(child: child);
+
+  @override
+  bool updateShouldNotify(covariant InheritedExameble oldWidget) {
+    return val != oldWidget.val;
   }
 }

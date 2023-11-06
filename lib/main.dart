@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -22,8 +23,9 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
+valueNotifier value = valueNotifier(value: 0.2);
+
 class _MyHomePageState extends State<MyHomePage> {
-  valueNotifier value = valueNotifier(value: 0);
   @override
   Widget build(BuildContext context) {
     print("nguvc\n");
@@ -32,13 +34,13 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text('InheritNotifier'),
       ),
       body: InheritedExameble(
-        val:value ,
+        valnotifier: value,
         child: Builder(builder: (context) {
           return Column(children: [
             Slider(
               min: 0,
-              max: 10,
-              value: value.value,
+              max: 1,
+              value:InheritedExameble.of(context),
               onChanged: (i) {
                 print("$i\n");
                 value.value = i;
@@ -46,15 +48,22 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             Row(children: [
               Expanded(
-                child: Container(
-                  height: 200,
-                  color: Colors.blue,
+                child: Opacity(
+                  opacity:  value._value,
+                  child: Container(
+                    
+                    height: 200,
+                    color: Colors.blue,
+                  ),
                 ),
               ),
               Expanded(
-                child: Container(
-                  height: 200,
-                  color: Colors.red,
+                child: Opacity(
+                  opacity:  value._value,
+                  child: Container(
+                    height: 200,
+                    color: Colors.red,
+                  ),
                 ),
               ),
             ]),
@@ -67,20 +76,36 @@ class _MyHomePageState extends State<MyHomePage> {
 
 class valueNotifier extends ChangeNotifier {
   double _value = 0;
-
   valueNotifier({required double value}) : _value = value;
 
   double get value => _value;
   void set value(double val) {
     print("val\n");
-    _value = val;
-    notifyListeners();
+    if (val != _value) {
+      _value = val;
+      notifyListeners();
+    }
+  }
+
+  @override
+  void addListener(VoidCallback listener) {
+    print("addListener$listener\n");
+
+    super.addListener(listener);
   }
 }
+
 class InheritedExameble extends InheritedNotifier<valueNotifier> {
-  final valueNotifier val;
+  final valueNotifier valnotifier;
   final Widget child;
 
-  const InheritedExameble({super.key, required this.child, required this.val})
-      : super(child: child, notifier: val);
+  const InheritedExameble(
+      {super.key, required this.child, required this.valnotifier})
+      : super(child: child, notifier: valnotifier);
+  static double of(BuildContext context) {
+    return context
+        .dependOnInheritedWidgetOfExactType<InheritedExameble>()!
+        .valnotifier
+        ._value;
+  }
 }
